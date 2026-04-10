@@ -12,21 +12,26 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		auth := r.Header.Get("Authorization")
-
 		if auth == "" {
-			w.WriteHeader(http.StatusUnauthorized)
+			w.WriteHeader(401)
 			w.Write([]byte(`{"error":"unauthorized"}`))
 			return
 		}
 
-		tokenStr := strings.Split(auth, " ")[1]
+		parts := strings.Split(auth, " ")
+		if len(parts) != 2 {
+			w.WriteHeader(401)
+			return
+		}
+
+		tokenStr := parts[1]
 
 		token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("JWT_SECRET")), nil
 		})
 
 		if err != nil || !token.Valid {
-			w.WriteHeader(http.StatusUnauthorized)
+			w.WriteHeader(401)
 			w.Write([]byte(`{"error":"unauthorized"}`))
 			return
 		}

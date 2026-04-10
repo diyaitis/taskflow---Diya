@@ -11,17 +11,22 @@ import (
 )
 
 func main() {
+
+	// connect DB
 	db.Connect(os.Getenv("DB_URL"))
 
+	// public routes
 	http.HandleFunc("/auth/register", handlers.Register)
 	http.HandleFunc("/auth/login", handlers.Login)
 
-	http.HandleFunc("/projects", handlers.Projects)
-	http.HandleFunc("/tasks", handlers.Tasks)
-
-    http.HandleFunc("/projects", middleware.AuthMiddleware(handlers.Projects))
-    http.HandleFunc("/tasks", middleware.AuthMiddleware(handlers.Tasks))  
+	// protected routes
+	http.HandleFunc("/projects", middleware.AuthMiddleware(handlers.Projects))
+	http.HandleFunc("/tasks", middleware.AuthMiddleware(handlers.Tasks))
 
 	log.Println("Server running on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
