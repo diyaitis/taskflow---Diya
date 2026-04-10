@@ -2,12 +2,8 @@ import axios from "axios";
 
 const API = axios.create({
   baseURL: "http://localhost:8080",
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
-// attach token
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
@@ -18,7 +14,6 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
-// global error handling
 API.interceptors.response.use(
   (res) => res,
   (err) => {
